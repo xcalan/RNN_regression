@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 """
-@Time    : 2021/7/7 20:45
+@Time    : 2021/7/7 22:06
 @Author  : Xie Cheng
-@File    : test_transformer.py
+@File    : test.py
 @Software: PyCharm
-@desc: transformer 测试
+@desc: 网络测试
 """
 import torch
 from torch import nn
@@ -20,10 +20,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # print('You are using: ' + str(device))
 
 # batch size
-batch_size_test = 20
+batch_size_test = 200
 
 # 导入数据
-filename = './data/data.csv'
+filename = '../data/data.csv'
 dataset_test = MyDataset(filename)
 test_loader = DataLoader(dataset_test, batch_size=batch_size_test, shuffle=False, drop_last=True)
 
@@ -31,23 +31,19 @@ criterion = nn.MSELoss()  # mean square error
 
 
 # rnn 测试
-def test_rnn():
-    net_test = torch.load('.\\model\\tf_model.pkl')  # load model
+def test():
+    net_test = torch.load('..\\model\\mlp_model.pkl')  # load model
     test_loss = 0
     net_test.eval()
     with torch.no_grad():
         for idx, (sin_input, cos_output) in enumerate(test_loader):
-            sin_input_np = sin_input.numpy()  # 1D
-            sin_input_torch = torch.from_numpy(sin_input_np[np.newaxis, :, np.newaxis])  # 3D
-
-            prediction = net_test(sin_input_torch.to(device))  # torch.Size([batch size])
-
+            prediction = net_test(sin_input.to(device))
             if idx == 0:
-                predict_value = prediction
-                real_value = cos_output
+                predict_value = prediction.squeeze()
+                real_value = cos_output.squeeze()
             else:
-                predict_value = torch.cat([predict_value, prediction], dim=0)
-                real_value = torch.cat([real_value, cos_output], dim=0)
+                predict_value = torch.cat([predict_value, prediction.squeeze()], dim=0)
+                real_value = torch.cat([real_value, cos_output.squeeze()], dim=0)
 
             loss = criterion(prediction, cos_output.to(device))
             test_loss += loss.item()
@@ -59,11 +55,10 @@ def test_rnn():
 if __name__ == '__main__':
     # 模型测试
     print("testing...")
-    p_v, r_v = test_rnn()
+    p_v, r_v = test()
 
     # 对比图
     plt.plot(p_v.cpu(), c='green')
     plt.plot(r_v.cpu(), c='orange', linestyle='--')
     plt.show()
     print("stop testing!")
-

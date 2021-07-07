@@ -14,7 +14,7 @@ import numpy as np
 from torch.autograd import Variable
 
 from myfunction import MyDataset
-from transformer import TransformerTS
+from Transformer.transformer import TransformerTS
 
 # device GPU or CPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,7 +26,7 @@ batch_size_train = 20
 total_epoch = 1000
 
 # 1. 导入训练数据
-filename = './data/data.csv'
+filename = '../data/data.csv'
 dataset_train = MyDataset(filename)
 train_loader = DataLoader(dataset_train, batch_size=batch_size_train, shuffle=False, drop_last=True)
 
@@ -74,7 +74,7 @@ def train_transformer(epoch):
             train_loss_list.append(loss_epoch)
             if loss_epoch < total_loss:
                 total_loss = loss_epoch
-                torch.save(tf, '.\\model\\tf_model.pkl')  # save model
+                torch.save(tf, '..\\model\\tf_model.pkl')  # save model
 
 
 if __name__ == '__main__':
